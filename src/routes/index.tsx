@@ -16,10 +16,15 @@ import {
   Clock,
   Check,
   X,
+  ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
 
 import heroImage from "@/assets/cityhall-hero.jpg";
 import sealImage from "@/assets/nexus-seal.png";
+import catOkmanyok from "@/assets/cat-okmanyok.jpg";
+import catAuto from "@/assets/cat-auto.jpg";
+import catEngedelyek from "@/assets/cat-engedelyek.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -55,7 +60,9 @@ type Category = {
   id: string;
   title: string;
   subtitle: string;
+  description: string;
   icon: typeof IdCard;
+  image: string;
   services: Service[];
 };
 
@@ -64,7 +71,9 @@ const categories: Category[] = [
     id: "okmanyok",
     title: "Személyes okmányok",
     subtitle: "Személyi, lakcím, anyakönyv",
+    description: "Személyazonosítás és lakcímügyek egy helyen.",
     icon: IdCard,
+    image: catOkmanyok,
     services: [
       {
         id: "szemelyi",
@@ -108,7 +117,9 @@ const categories: Category[] = [
     id: "auto",
     title: "Autó ügyintézés",
     subtitle: "Forgalmi, átírás, rendszám",
+    description: "Járműnyilvántartás, jogosítvány és rendszám ügyek.",
     icon: Car,
+    image: catAuto,
     services: [
       {
         id: "jogositvany",
@@ -152,7 +163,9 @@ const categories: Category[] = [
     id: "engedelyek",
     title: "Engedélyek",
     subtitle: "Fegyver, vadász, pilóta",
+    description: "Hatósági engedélyek igénylése és megújítása.",
     icon: ShieldCheck,
+    image: catEngedelyek,
     services: [
       {
         id: "fegyver",
@@ -198,11 +211,11 @@ const formatPrice = (value: number) =>
   new Intl.NumberFormat("hu-HU").format(value) + " $";
 
 function CityHall() {
-  const [activeCategory, setActiveCategory] = useState("okmanyok");
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selected, setSelected] = useState<Service | null>(null);
   const [confirmed, setConfirmed] = useState<string | null>(null);
 
-  const category = categories.find((c) => c.id === activeCategory)!;
+  const category = categories.find((c) => c.id === activeCategory) ?? null;
 
   const submit = (service: Service) => {
     setConfirmed(service.title);
@@ -274,154 +287,188 @@ function CityHall() {
             </div>
           </section>
 
-          {/* Kategóriák */}
-          <section className="grid gap-3 px-5 py-6 sm:grid-cols-3 md:px-7">
-            {categories.map((cat) => {
-              const Icon = cat.icon;
-              const active = cat.id === activeCategory;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => {
-                    setActiveCategory(cat.id);
-                    setSelected(null);
-                  }}
-                  className={`rounded-2xl border p-4 text-left transition-all duration-200 hover:-translate-y-0.5 ${
-                    active
-                      ? "border-primary/60 bg-primary/10"
-                      : "border-border bg-secondary/30 hover:border-primary/30"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={`grid size-10 place-items-center rounded-xl ${
-                        active
-                          ? "bg-gold text-primary-foreground"
-                          : "bg-secondary text-primary"
-                      }`}
-                    >
-                      <Icon className="size-5" />
-                    </span>
-                    <span className="font-mono text-[11px] text-muted-foreground">
-                      {cat.services.length} ügy
-                    </span>
-                  </div>
-                  <p className="mt-3 font-display font-semibold">{cat.title}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{cat.subtitle}</p>
-                </button>
-              );
-            })}
-          </section>
-
-          {/* Ügyek */}
-          <section className="grid gap-4 px-5 pb-7 lg:grid-cols-[1fr_320px] md:px-7">
-            <div className="grid gap-3 sm:grid-cols-2">
-              {category.services.map((service) => {
-                const Icon = service.icon;
-                const active = selected?.id === service.id;
+          {!category ? (
+            /* Főmenü — képes kategóriakártyák */
+            <section className="grid gap-4 px-5 py-7 md:grid-cols-3 md:px-7">
+              {categories.map((cat) => {
+                const Icon = cat.icon;
                 return (
-                  <article
-                    key={service.id}
-                    className={`rounded-2xl border p-4 transition-colors ${
-                      active
-                        ? "border-primary/70 bg-primary/10"
-                        : "border-border bg-secondary/25 hover:border-primary/30"
-                    }`}
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      setActiveCategory(cat.id);
+                      setSelected(null);
+                    }}
+                    className="group overflow-hidden rounded-2xl border border-border bg-secondary/30 text-left transition-all duration-300 hover:-translate-y-1 hover:border-primary/50"
                   >
-                    <div className="flex items-start gap-3">
-                      <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-secondary text-primary">
-                        <Icon className="size-4.5" />
+                    <div className="relative h-44 overflow-hidden">
+                      <img
+                        src={cat.image}
+                        alt={cat.title}
+                        loading="lazy"
+                        width={1024}
+                        height={768}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
+                      <span className="absolute top-3 left-3 grid size-10 place-items-center rounded-xl border border-border bg-card/80 text-primary backdrop-blur-sm">
+                        <Icon className="size-5" />
                       </span>
-                      <div>
-                        <h3 className="text-sm font-semibold">{service.title}</h3>
-                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                          {service.description}
-                        </p>
-                      </div>
                     </div>
-                    <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-                      <div>
-                        <p className="font-mono text-sm text-primary">
-                          {formatPrice(service.price)}
-                        </p>
-                        <p className="mt-0.5 flex items-center gap-1 font-mono text-[10px] text-muted-foreground">
-                          <Clock className="size-3" /> {service.time}
-                        </p>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between">
+                        <h2 className="font-display text-lg font-semibold">
+                          {cat.title}
+                        </h2>
+                        <ChevronRight className="size-5 text-primary transition-transform duration-300 group-hover:translate-x-1" />
                       </div>
-                      <button
-                        onClick={() => setSelected(service)}
-                        className="rounded-lg bg-gold px-3.5 py-2 text-xs font-semibold text-primary-foreground transition-transform active:scale-[0.97]"
-                      >
-                        Igénylés
-                      </button>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {cat.subtitle}
+                      </p>
+                      <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                        {cat.description}
+                      </p>
+                      <p className="mt-3 font-mono text-[11px] text-primary">
+                        {cat.services.length} elérhető ügy
+                      </p>
                     </div>
-                  </article>
+                  </button>
                 );
               })}
-            </div>
-
-            {/* Összegző panel */}
-            <aside className="rounded-2xl border border-border bg-secondary/25 p-4">
-              {selected ? (
-                <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <h2 className="text-base font-semibold">{selected.title}</h2>
-                    <button
-                      onClick={() => setSelected(null)}
-                      className="text-muted-foreground transition-colors hover:text-foreground"
-                      aria-label="Bezárás"
-                    >
-                      <X className="size-4" />
-                    </button>
-                  </div>
-                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                    {selected.description}
+            </section>
+          ) : (
+            /* Kategória menü — ügyek listája */
+            <section className="px-5 py-6 md:px-7">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <button
+                  onClick={() => {
+                    setActiveCategory(null);
+                    setSelected(null);
+                  }}
+                  className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                >
+                  <ChevronLeft className="size-4" /> Vissza a főmenübe
+                </button>
+                <div className="text-right">
+                  <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+                    Ügykör
                   </p>
-
-                  <p className="mt-4 font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
-                    Feltételek
-                  </p>
-                  <ul className="mt-2 space-y-1.5">
-                    {selected.requirements.map((r) => (
-                      <li key={r} className="flex items-center gap-2 text-xs">
-                        <Check className="size-3.5 text-success" />
-                        {r}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-card/60 px-3 py-2.5">
-                    <span className="text-xs text-muted-foreground">Fizetendő</span>
-                    <span className="font-mono text-sm text-primary">
-                      {formatPrice(selected.price)}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => submit(selected)}
-                    className="mt-3 w-full rounded-xl bg-gold py-3 text-sm font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
-                  >
-                    Kérelem benyújtása
-                  </button>
-                </div>
-              ) : (
-                <div className="flex h-full min-h-48 flex-col items-center justify-center text-center">
-                  <img
-                    src={sealImage}
-                    alt=""
-                    loading="lazy"
-                    width={512}
-                    height={512}
-                    className="size-16 opacity-40"
-                  />
-                  <p className="mt-3 text-sm font-medium">Nincs kiválasztott ügy</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Válassz egy szolgáltatást a részletek megtekintéséhez.
+                  <p className="font-display text-lg font-semibold">
+                    {category.title}
                   </p>
                 </div>
-              )}
-            </aside>
-          </section>
+              </div>
+
+              <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_320px]">
+                <div className="grid content-start gap-3 sm:grid-cols-2">
+                  {category.services.map((service) => {
+                    const Icon = service.icon;
+                    const active = selected?.id === service.id;
+                    return (
+                      <article
+                        key={service.id}
+                        className={`rounded-2xl border p-4 transition-colors ${
+                          active
+                            ? "border-primary/70 bg-primary/10"
+                            : "border-border bg-secondary/25 hover:border-primary/30"
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-secondary text-primary">
+                            <Icon className="size-4.5" />
+                          </span>
+                          <div>
+                            <h3 className="text-sm font-semibold">{service.title}</h3>
+                            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                              {service.description}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+                          <div>
+                            <p className="font-mono text-sm text-primary">
+                              {formatPrice(service.price)}
+                            </p>
+                            <p className="mt-0.5 flex items-center gap-1 font-mono text-[10px] text-muted-foreground">
+                              <Clock className="size-3" /> {service.time}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setSelected(service)}
+                            className="rounded-lg bg-gold px-3.5 py-2 text-xs font-semibold text-primary-foreground transition-transform active:scale-[0.97]"
+                          >
+                            Igénylés
+                          </button>
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+
+                {/* Összegző panel */}
+                <aside className="rounded-2xl border border-border bg-secondary/25 p-4">
+                  {selected ? (
+                    <div>
+                      <div className="flex items-start justify-between gap-2">
+                        <h2 className="text-base font-semibold">{selected.title}</h2>
+                        <button
+                          onClick={() => setSelected(null)}
+                          className="text-muted-foreground transition-colors hover:text-foreground"
+                          aria-label="Bezárás"
+                        >
+                          <X className="size-4" />
+                        </button>
+                      </div>
+                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                        {selected.description}
+                      </p>
+
+                      <p className="mt-4 font-mono text-[10px] tracking-[0.2em] text-muted-foreground uppercase">
+                        Feltételek
+                      </p>
+                      <ul className="mt-2 space-y-1.5">
+                        {selected.requirements.map((r) => (
+                          <li key={r} className="flex items-center gap-2 text-xs">
+                            <Check className="size-3.5 text-success" />
+                            {r}
+                          </li>
+                        ))}
+                      </ul>
+
+                      <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-card/60 px-3 py-2.5">
+                        <span className="text-xs text-muted-foreground">Fizetendő</span>
+                        <span className="font-mono text-sm text-primary">
+                          {formatPrice(selected.price)}
+                        </span>
+                      </div>
+
+                      <button
+                        onClick={() => submit(selected)}
+                        className="mt-3 w-full rounded-xl bg-gold py-3 text-sm font-semibold text-primary-foreground transition-transform active:scale-[0.98]"
+                      >
+                        Kérelem benyújtása
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex h-full min-h-48 flex-col items-center justify-center text-center">
+                      <img
+                        src={sealImage}
+                        alt=""
+                        loading="lazy"
+                        width={512}
+                        height={512}
+                        className="size-16 opacity-40"
+                      />
+                      <p className="mt-3 text-sm font-medium">Nincs kiválasztott ügy</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Válassz egy szolgáltatást a részletek megtekintéséhez.
+                      </p>
+                    </div>
+                  )}
+                </aside>
+              </div>
+            </section>
+          )}
         </div>
 
         <p className="mt-4 text-center font-mono text-[11px] tracking-[0.2em] text-muted-foreground uppercase">
