@@ -198,7 +198,7 @@ const formatPrice = (value: number) =>
   new Intl.NumberFormat("hu-HU").format(value) + " $";
 
 function CityHall() {
-  const [activeCategory, setActiveCategory] = useState(categories[0].id);
+  const [activeCategory, setActiveCategory] = useState("okmanyok");
   const [selected, setSelected] = useState<Service | null>(null);
   const [confirmed, setConfirmed] = useState<string | null>(null);
 
